@@ -1,17 +1,17 @@
-package ezhttp
+package gohandy
 
 import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"mime/multipart"
-	"net/http"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"strings"
+	"mime/multipart"
+	"net/http"
 	"os"
-	"fmt"
+	"strings"
 )
 
 type EzClient struct {
@@ -19,15 +19,15 @@ type EzClient struct {
 	body io.Reader
 }
 
-func NewClientTlsInsecure() *EzClient {
+func NewInsecureClient() *EzClient {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	return &EzClient{ Client: &http.Client{Transport: tr} }
+	return &EzClient{Client: &http.Client{Transport: tr}}
 }
 
 func NewClient() *EzClient {
-	return &EzClient{ Client: &http.Client{} }
+	return &EzClient{Client: &http.Client{}}
 }
 
 func (c *EzClient) JsonGet(url string, out interface{}) (int, error) {
@@ -63,13 +63,18 @@ func (c *EzClient) JsonPost(url string, out interface{}) (int, error) {
 func decodeJsonResponse(resp *http.Response, out interface{}) (int, error) {
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	
+
 	if resp.StatusCode > 299 {
 		return resp.StatusCode, errors.New(string(body))
 	}
 
-	json.Unmarshal(body, out)
-	return resp.StatusCode, nil	
+	fmt.Println(string(body))
+	err := json.Unmarshal(body, out)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(out)
+	return resp.StatusCode, nil
 }
 
 func (c *EzClient) PostFile(url, filepath, formName string, params map[string]string) (int, error) {
@@ -109,7 +114,7 @@ func (c *EzClient) PostFile(url, filepath, formName string, params map[string]st
 	closeBuf := bytes.NewBufferString(closeStr)
 	reader := io.MultiReader(body, file, closeBuf)
 	req, err := http.NewRequest("POST", url, reader)
-	req.Header.Add("Content-Type", "multipart/form-data; boundary=" + boundary)
+	req.Header.Add("Content-Type", "multipart/form-data; boundary="+boundary)
 	req.ContentLength = int64(body.Len()) + int64(closeBuf.Len())
 
 	// Post the file
