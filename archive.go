@@ -10,25 +10,15 @@ import (
 func Unpack(r *tar.Reader, toPath string) error {
 	for {
 		hdr, err := r.Next()
-		if err == io.EOF {
+		switch {
+		case err == io.EOF:
 			break
-		}
-
-		if err != nil {
+		case err != nil:
 			return err
-		}
-
-		err = nil
-
-		if hdr.Typeflag == tar.TypeDir {
-			dirpath := filepath.Join(toPath, hdr.Name)
-			err = os.MkdirAll(dirpath, 0777)
-		} else if hdr.Typeflag == tar.TypeReg || hdr.Typeflag == tar.TypeRegA {
-			err = writeFile(toPath, hdr.Name, r)
-		}
-
-		if err != nil {
-			return nil
+		default:
+			if err := doOnType(hdr.Typeflag, toPath, hdr.Name, r); err != nil {
+				return err
+			}
 		}
 
 	}
@@ -36,17 +26,25 @@ func Unpack(r *tar.Reader, toPath string) error {
 	return nil
 }
 
-func writeFile(toPath, filename string, r *tar.Reader) error {
-	path := filepath.Join(toPath, filename)
+func doOnType(typeFlag byte, toPath string, name string, r *tar.Reader) error {
+	fullpath := filepath.Join(toPath, name)
+	switch typeFlag {
+	case tar.TypeReg, tar.TypeRegA:
+		return writeFile(fullpath, r)
+	case tar.TypeDir:
+		return os.MkdirAll(fullpath, 0777)
+	default:
+		return nil
+	}
+}
+
+func writeFile(path string, r *tar.Reader) error {
 	out, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
 
-	if _, err := io.Copy(out, r); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = io.Copy(out, r)
+	return err
 }
