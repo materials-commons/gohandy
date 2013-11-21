@@ -1,4 +1,4 @@
-package gohandy
+package ezhttp
 
 import (
 	"bytes"
@@ -38,7 +38,7 @@ func (c *EzClient) JsonGet(url string, out interface{}) (int, error) {
 	return decodeJsonResponse(resp, out)
 }
 
-func (c *EzClient) JsonString(j string) *EzClient {
+func (c *EzClient) JsonStr(j string) *EzClient {
 	c.body = strings.NewReader(j)
 	return c
 }
@@ -68,12 +68,10 @@ func decodeJsonResponse(resp *http.Response, out interface{}) (int, error) {
 		return resp.StatusCode, errors.New(string(body))
 	}
 
-	fmt.Println(string(body))
 	err := json.Unmarshal(body, out)
 	if err != nil {
-		fmt.Println(err)
+		return resp.StatusCode, err
 	}
-	fmt.Println(out)
 	return resp.StatusCode, nil
 }
 
