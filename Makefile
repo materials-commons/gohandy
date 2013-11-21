@@ -1,11 +1,9 @@
-DIRS = .
+GODIRS = ezhttp
 
 all: fmt test
 
 test:
-	-go test -v
-	-for d in $(DIRS); do (cd $$d; go test -v); done
+	-for d in $(GODIRS); do (cd $$d; go test -v); done
 
 fmt:
-	go fmt
-	-for d in $(DIRS); do (cd $$d; go fmt); done
+	-for d in $(GODIRS); do (cd $$d; go fmt); done
