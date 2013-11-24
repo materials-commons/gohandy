@@ -114,6 +114,7 @@ func (c *EzClient) PostFile(url, filepath, formName string, params map[string]st
 	req, err := http.NewRequest("POST", url, reader)
 	req.Header.Add("Content-Type", "multipart/form-data; boundary="+boundary)
 	req.ContentLength = int64(body.Len()) + int64(closeBuf.Len())
+	req.Close = true
 
 	// Post the file
 	resp, err := c.Client.Do(req)
