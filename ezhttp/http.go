@@ -38,6 +38,33 @@ func (c *EzClient) JsonGet(url string, out interface{}) (int, error) {
 	return decodeJsonResponse(resp, out)
 }
 
+func (c *EzClient) FileGet(url, path string) (int, error) {
+	resp, err := c.Client.Get(url)
+	if err != nil {
+		return 0, err
+	}
+
+	return writeToPath(resp, path)
+}
+
+func writeToPath(resp *http.Response, path string) (int, error) {
+	defer resp.Body.Close()
+
+	if resp.StatusCode > 299 {
+		msg, _ := ioutil.ReadAll(resp.Body)
+		return resp.StatusCode, errors.New(string(msg))
+	}
+
+	out, err := os.Create(path)
+	if err != nil {
+		return 0, err
+	}
+	defer out.Close()
+	
+	io.Copy(out, resp.Body)
+	return resp.StatusCode, nil
+}
+
 func (c *EzClient) JsonStr(j string) *EzClient {
 	c.body = strings.NewReader(j)
 	return c
@@ -127,3 +154,4 @@ func (c *EzClient) PostFile(url, filepath, formName string, params map[string]st
 
 	return resp.StatusCode, nil
 }
+
