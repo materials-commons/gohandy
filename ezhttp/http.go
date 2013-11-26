@@ -60,7 +60,7 @@ func writeToPath(resp *http.Response, path string) (int, error) {
 		return 0, err
 	}
 	defer out.Close()
-	
+
 	io.Copy(out, resp.Body)
 	return resp.StatusCode, nil
 }
@@ -154,4 +154,3 @@ func (c *EzClient) PostFile(url, filepath, formName string, params map[string]st
 
 	return resp.StatusCode, nil
 }
-

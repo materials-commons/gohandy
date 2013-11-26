@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -96,5 +98,17 @@ func TestJsonPost(t *testing.T) {
 	if td2.Field1 != "hello1" || td2.Field2 != "hello2" {
 		t.Fatalf("Incorrect decode, expected fields to be 'hello1' and 'hello2', got %s/%s\n",
 			td2.Field1, td2.Field2)
+	}
+}
+
+func TestFileGet(t *testing.T) {
+	ts := httptest.NewServer(http.FileServer(http.Dir(".")))
+	defer ts.Close()
+
+	c := NewClient()
+	path := filepath.Join(os.TempDir(), "http.go")
+	c.FileGet(ts.URL+"/http.go", path)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		t.Fatalf("Unable to get file %s\n", path)
 	}
 }
