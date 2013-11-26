@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	//"fmt"
 )
 
 type TestData struct {
