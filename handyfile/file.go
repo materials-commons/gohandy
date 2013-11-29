@@ -1,4 +1,4 @@
-package futil
+package handyfile
 
 import (
 	"hash/crc32"
