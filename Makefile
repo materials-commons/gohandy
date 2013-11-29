@@ -1,4 +1,4 @@
-GODIRS = ezhttp .
+GODIRS = ezhttp futil
 
 all: fmt test
 

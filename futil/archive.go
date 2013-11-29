@@ -1,4 +1,4 @@
-package gohandy
+package futil
 
 import (
 	"archive/tar"
