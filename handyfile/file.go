@@ -14,3 +14,11 @@ func Checksum32(path string) uint32 {
 	withcrc := c.Sum(bytes)
 	return crc32.ChecksumIEEE(withcrc)
 }
+
+func Exists(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
