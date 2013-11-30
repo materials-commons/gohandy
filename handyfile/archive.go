@@ -8,12 +8,15 @@ import (
 	"path/filepath"
 )
 
+// TarReader type contains all the artifacts needed
+// to unpack a tar file.
 type TarReader struct {
 	file *os.File
 	gz   *gzip.Reader
 	tr   *tar.Reader
 }
 
+// NewTar creates a new TarReader.
 func NewTar(path string) (*TarReader, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -24,6 +27,8 @@ func NewTar(path string) (*TarReader, error) {
 	return &TarReader{file: file, gz: nil, tr: tr}, nil
 }
 
+// NewTarGz create a new TarReader for a tar file that
+// has been gzipped.
 func NewTarGz(path string) (*TarReader, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -39,6 +44,10 @@ func NewTarGz(path string) (*TarReader, error) {
 	return &TarReader{file: file, gz: gz, tr: tr}, nil
 }
 
+// Unpack will unpack a tar file contained in the TarReader. It
+// writes the new entires to the toPath. Unpack takes care of
+// closing the underlying artifacts (file, and gzip stream) for the
+// TarReader. You cannot call Unpack twice for the same TarReader.
 func (tr *TarReader) Unpack(toPath string) error {
 	defer tr.file.Close()
 	if tr.gz != nil {
@@ -46,7 +55,6 @@ func (tr *TarReader) Unpack(toPath string) error {
 	}
 
 	r := tr.tr
-
 	for {
 		hdr, err := r.Next()
 		switch {
@@ -59,7 +67,6 @@ func (tr *TarReader) Unpack(toPath string) error {
 				return err
 			}
 		}
-
 	}
 
 	return nil
