@@ -2,12 +2,51 @@ package handyfile
 
 import (
 	"archive/tar"
+	"compress/gzip"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-func Unpack(r *tar.Reader, toPath string) error {
+type TarReader struct {
+	file *os.File
+	gz   *gzip.Reader
+	tr   *tar.Reader
+}
+
+func NewTar(path string) (*TarReader, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	tr := tar.NewReader(file)
+	return &TarReader{file: file, gz: nil, tr: tr}, nil
+}
+
+func NewTarGz(path string) (*TarReader, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	gz, _ := gzip.NewReader(file)
+	if err != nil {
+		return nil, err
+	}
+
+	tr := tar.NewReader(gz)
+	return &TarReader{file: file, gz: gz, tr: tr}, nil
+}
+
+func (tr *TarReader) Unpack(toPath string) error {
+	defer tr.file.Close()
+	if tr.gz != nil {
+		defer tr.gz.Close()
+	}
+
+	r := tr.tr
+
 	for {
 		hdr, err := r.Next()
 		switch {
