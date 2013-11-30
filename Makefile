@@ -1,4 +1,4 @@
-GODIRS = ezhttp futil
+GODIRS = ezhttp handyfile
 
 all: fmt test
 
