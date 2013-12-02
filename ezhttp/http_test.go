@@ -111,4 +111,5 @@ func TestFileGet(t *testing.T) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		t.Fatalf("Unable to get file %s\n", path)
 	}
+	os.Remove(path)
 }
