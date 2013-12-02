@@ -18,7 +18,7 @@ func Checksum32(path string) uint32 {
 
 func Exists(path string) bool {
 	_, err := os.Stat(path)
-	return os.IsNotExist(err)
+	return !os.IsNotExist(err)
 }
 
 func Copy(src, dest string) error {
