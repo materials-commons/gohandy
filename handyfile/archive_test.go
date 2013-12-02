@@ -26,7 +26,6 @@ func TestUnpackTarGz(t *testing.T) {
 	checkContents(filepath.Join(tpath, "a"), "Hello a", 8, t)
 	checkContents(filepath.Join(tpath, "b"), "Hello b", 8, t)
 	checkContents(filepath.Join(tpath, "c"), "Hello c", 8, t)
-
 }
 
 func checkContents(fpath, expectedContents string, expectedLength int, t *testing.T) {
