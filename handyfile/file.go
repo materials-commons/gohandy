@@ -2,9 +2,9 @@ package handyfile
 
 import (
 	"hash/crc32"
+	"io"
 	"io/ioutil"
 	"os"
-	"io"
 )
 
 func Checksum32(path string) uint32 {
@@ -27,7 +27,7 @@ func Copy(src, dest string) error {
 		return err
 	}
 	defer fsrc.Close()
-	
+
 	fdest, err := os.Create(dest)
 	if err != nil {
 		return err
