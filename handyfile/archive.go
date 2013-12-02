@@ -55,11 +55,12 @@ func (tr *TarReader) Unpack(toPath string) error {
 	}
 
 	r := tr.tr
+ReadLoop:
 	for {
 		hdr, err := r.Next()
 		switch {
 		case err == io.EOF:
-			break
+			break ReadLoop
 		case err != nil:
 			return err
 		default:
