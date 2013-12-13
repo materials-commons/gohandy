@@ -1,7 +1,7 @@
 /*
-* Originally based on code at: https://github.com/gophertown/looper/blob/master/watch.go
+ * Implements a recursive file system watcher. This code is based on code from
+ * https://github.com/gophertown/looper/blob/master/watch.go.
  */
-
 package fs
 
 import (
@@ -12,15 +12,24 @@ import (
 	"path/filepath"
 )
 
+// The event that occurred. This is a structure that wraps the
+// fsnotify.FileEvent. The reason we don't expose fsnotify.FileEvent
+// directly is to allow for future expansion of state information in
+// the Event struct.
 type Event struct {
 	*fsnotify.FileEvent
 }
 
+// RecursiveWatcher represents the file system watcher and
+// communication channels.
 type RecursiveWatcher struct {
-	*fsnotify.Watcher
-	Events chan Event
+	*fsnotify.Watcher            // File system watcher
+	Events            chan Event // The channel to send events on
 }
 
+// NewRecursiveWatcher creates a new file system watcher for path. It walks the directory
+// tree at path adding each directory to the watcher. When the user creates a new directory
+// it is also added to the list of directories to watch.
 func NewRecursiveWatcher(path string) (*RecursiveWatcher, error) {
 	directories := subdirs(path)
 	if len(directories) == 0 {
@@ -42,6 +51,8 @@ func NewRecursiveWatcher(path string) (*RecursiveWatcher, error) {
 	return recursiveWatcher, nil
 }
 
+// addDirectory adds a new directory to the file system watcher. It is automatically
+// called when the watcher detects a directory create event.
 func (watcher *RecursiveWatcher) addDirectory(dir string) {
 	err := watcher.WatchFlags(dir, fsnotify.FSN_ALL)
 	if err != nil {
@@ -49,7 +60,11 @@ func (watcher *RecursiveWatcher) addDirectory(dir string) {
 	}
 }
 
-func (watcher *RecursiveWatcher) Run() {
+// Start starts monitoring for file system events and sends the
+// events on the Events channel. It also handles directory create
+// events by adding the newly created directory to the list of
+// directories to monitor.
+func (watcher *RecursiveWatcher) Start() {
 	go func() {
 		for {
 			select {
@@ -62,6 +77,8 @@ func (watcher *RecursiveWatcher) Run() {
 	}()
 }
 
+// handleEvent performs the actual task of adding directories newly created
+// directories to be monitored and sending events on the Events channel.
 func (watcher *RecursiveWatcher) handleEvent(event *fsnotify.FileEvent) {
 	if event.IsCreate() {
 		watcher.handleCreate(event)
@@ -74,6 +91,8 @@ func (watcher *RecursiveWatcher) handleEvent(event *fsnotify.FileEvent) {
 	watcher.Events <- e
 }
 
+// handleCreate checks if the created item is a directory and if so
+// sets that directory up for monitoring.
 func (watcher *RecursiveWatcher) handleCreate(event *fsnotify.FileEvent) {
 	finfo, err := os.Stat(event.Name)
 	if err != nil {
@@ -83,6 +102,8 @@ func (watcher *RecursiveWatcher) handleCreate(event *fsnotify.FileEvent) {
 	}
 }
 
+// subdirs walks a directory creating a list of all subdirectories. It ignores
+// hidden directories (directories starting with a '.' "dot")
 func subdirs(path string) (paths []string) {
 	filepath.Walk(path, func(subpath string, info os.FileInfo, err error) error {
 		if err != nil {
