@@ -1,6 +1,7 @@
 package handyfile
 
 import (
+	"hash"
 	"hash/crc32"
 	"io"
 	"io/ioutil"
@@ -14,6 +15,19 @@ func Checksum32(path string) uint32 {
 	bytes, _ := ioutil.ReadAll(file)
 	withcrc := c.Sum(bytes)
 	return crc32.ChecksumIEEE(withcrc)
+}
+
+func Hash(hasher hash.Hash, path string) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(hasher, f); err != nil {
+		return nil, err
+	}
+	return hasher.Sum(nil), nil
 }
 
 func Exists(path string) bool {
