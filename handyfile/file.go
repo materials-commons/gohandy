@@ -30,6 +30,18 @@ func Hash(hasher hash.Hash, path string) ([]byte, error) {
 	return hasher.Sum(nil), nil
 }
 
+func IsDir(path string) bool {
+	finfo, err := os.Stat(path)
+	switch {
+	case err != nil:
+		return false
+	case finfo.IsDir():
+		return true
+	default:
+		return false
+	}	
+}
+
 func Exists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
