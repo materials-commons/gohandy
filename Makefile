@@ -1,4 +1,4 @@
-GODIRS = ezhttp handyfile desktop fs
+GODIRS = ezhttp handyfile desktop fs rethink
 P = github.com/materials-commons/gohandy
 
 all: fmt test

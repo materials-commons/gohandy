@@ -39,7 +39,7 @@ func IsDir(path string) bool {
 		return true
 	default:
 		return false
-	}	
+	}
 }
 
 func Exists(path string) bool {
