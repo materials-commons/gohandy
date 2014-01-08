@@ -25,6 +25,7 @@ type Event struct {
 type RecursiveWatcher struct {
 	*fsnotify.Watcher            // File system watcher
 	Events            chan Event // The channel to send events on
+	ErrorEvents       chan error
 }
 
 // NewRecursiveWatcher creates a new file system watcher for path. It walks the directory
@@ -71,6 +72,7 @@ func (watcher *RecursiveWatcher) Start() {
 			case event := <-watcher.Event:
 				watcher.handleEvent(event)
 			case err := <-watcher.Error:
+				watcher.ErrorEvents <- err
 				log.Println("error:", err)
 			}
 		}
