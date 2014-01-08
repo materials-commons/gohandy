@@ -1,8 +1,8 @@
 package rethink
 
 import (
-	r "github.com/dancannon/gorethink"
 	"fmt"
+	r "github.com/dancannon/gorethink"
 )
 
 type DB struct {
