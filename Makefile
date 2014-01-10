@@ -1,11 +1,10 @@
-GODIRS = ezhttp handyfile desktop fs rethink
-P = github.com/materials-commons/gohandy
+.PHONY: all test fmt
 
 all: fmt test
 
 test:
 	rm -rf test_data/t
-	-go test -v $(P)/ezhttp $(P)/handyfile
+	-go test -v ./...
 
 fmt:
-	-for d in $(GODIRS); do (cd $$d; go fmt); done
+	-go fmt ./...
