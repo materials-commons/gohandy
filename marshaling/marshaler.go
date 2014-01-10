@@ -1,4 +1,4 @@
-package marshalling
+package marshaling
 
 type Marshaler interface {
 	Marshal(interface{}) error
@@ -8,7 +8,7 @@ type Unmarshaler interface {
 	Unmarshal(interface{}) error
 }
 
-type MarshalerUnmarshaler interface {
+type MarshalUnmarshaler interface {
 	Marshaler
 	Unmarshaler
 }
