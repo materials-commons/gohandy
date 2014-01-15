@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"fmt"
 )
 
 func Checksum32(path string) uint32 {
@@ -28,6 +29,14 @@ func Hash(hasher hash.Hash, path string) ([]byte, error) {
 		return nil, err
 	}
 	return hasher.Sum(nil), nil
+}
+
+func HashStr(hasher hash.Hash, path string) (string, error) {
+	if csum, err := Hash(hasher, path); err != nil {
+		return "", err
+	} else {
+		return fmt.Sprintf("%x", csum), nil
+	}
 }
 
 func IsDir(path string) bool {
