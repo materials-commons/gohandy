@@ -1,4 +1,4 @@
-package handyfile
+package file
 
 import (
 	"fmt"
