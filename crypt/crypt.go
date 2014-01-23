@@ -1,6 +1,6 @@
 package crypt
 
-import(
+import (
 	"unsafe"
 )
 

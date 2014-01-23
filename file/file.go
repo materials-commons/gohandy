@@ -1,12 +1,12 @@
 package file
 
 import (
+	"fmt"
 	"hash"
 	"hash/crc32"
 	"io"
 	"io/ioutil"
 	"os"
-	"fmt"
 )
 
 func Checksum32(path string) uint32 {
