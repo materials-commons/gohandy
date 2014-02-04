@@ -7,7 +7,12 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 )
+
+func NormalizePath(path string) string {
+	return strings.Replace(path, "\\", "/", -1)
+}
 
 func Checksum32(path string) uint32 {
 	file, _ := os.Open(path)
