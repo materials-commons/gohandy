@@ -39,7 +39,7 @@ func (c *EzClient) JSONGet(url string, out interface{}) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return decodeJsonResponse(resp, out)
+	return decodeJSONResponse(resp, out)
 }
 
 // FileGet downloads a file and writes it to path.
@@ -93,7 +93,7 @@ func (c *EzClient) JSONPost(url string, out interface{}) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return decodeJsonResponse(resp, out)
+	return decodeJSONResponse(resp, out)
 }
 
 // decodeJSONResponse decodes a response containing JSON.
