@@ -5,10 +5,12 @@ import (
 	r "github.com/dancannon/gorethink"
 )
 
+// DB holds the connection to the database.
 type DB struct {
 	Session *r.Session
 }
 
+// NewDB creates a new database.
 func NewDB(session *r.Session) *DB {
 	return &DB{
 		Session: session,
@@ -17,13 +19,14 @@ func NewDB(session *r.Session) *DB {
 
 var emptyMap map[string]interface{}
 
+// Get retrieves a single item from the database and returns it as a map.
 func (db *DB) Get(table, id string) (map[string]interface{}, error) {
 	result, err := r.Table(table).Get(id).RunRow(db.Session)
 	switch {
 	case err != nil:
 		return emptyMap, err
 	case result.IsNil():
-		return emptyMap, fmt.Errorf("No such id: %s", id)
+		return emptyMap, fmt.Errorf("no such id: %s", id)
 	default:
 		var response map[string]interface{}
 		result.Scan(&response)
@@ -31,6 +34,8 @@ func (db *DB) Get(table, id string) (map[string]interface{}, error) {
 	}
 }
 
+// GetAll retrieves multiple items from the database and returns them as a
+// list of maps.
 func (db *DB) GetAll(query r.RqlTerm) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
 	rows, err := query.Run(db.Session)

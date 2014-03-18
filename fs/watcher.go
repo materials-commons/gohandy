@@ -1,7 +1,7 @@
 /*
- * Implements a recursive file system watcher. This code is based on code from
- * https://github.com/gophertown/looper/blob/master/watch.go.
- */
+Package fs implements a recursive file system watcher. This code is based on code from
+https://github.com/gophertown/looper/blob/master/watch.go.
+*/
 package fs
 
 import (
@@ -12,10 +12,9 @@ import (
 	"path/filepath"
 )
 
-// The event that occurred. This is a structure that wraps the
-// fsnotify.FileEvent. The reason we don't expose fsnotify.FileEvent
-// directly is to allow for future expansion of state information in
-// the Event struct.
+// Event is a structure that wraps the fsnotify.FileEvent. The reason
+// we don't expose fsnotify.FileEvent directly is to allow for future
+// expansion of state information in the Event struct.
 type Event struct {
 	*fsnotify.FileEvent
 }
@@ -34,7 +33,7 @@ type RecursiveWatcher struct {
 func NewRecursiveWatcher(path string) (*RecursiveWatcher, error) {
 	directories := subdirs(path)
 	if len(directories) == 0 {
-		return nil, errors.New("No directories to watch")
+		return nil, errors.New("no directories to watch")
 	}
 
 	watcher, err := fsnotify.NewWatcher()
@@ -117,9 +116,8 @@ func subdirs(path string) (paths []string) {
 			hidden := filepath.HasPrefix(name, ".") && name != "." && name != ".."
 			if hidden {
 				return filepath.SkipDir
-			} else {
-				paths = append(paths, subpath)
 			}
+			paths = append(paths, subpath)
 		}
 		return nil
 	})

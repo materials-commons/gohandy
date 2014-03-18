@@ -1,5 +1,8 @@
-// This code is from tebeka:
-//https://bitbucket.org/tebeka/go-wise/src/151647b160ed257f6c05e327215d13c50ebb3856/desktop.go?at=default
+/*
+Package desktop implements a method for opening a file based on the uri.
+This code is from tebeka:
+https://bitbucket.org/tebeka/go-wise/src/151647b160ed257f6c05e327215d13c50ebb3856/desktop.go?at=default
+*/
 package desktop
 
 import (
