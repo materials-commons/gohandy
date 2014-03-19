@@ -1,0 +1,28 @@
+PACKAGE DOCUMENTATION
+
+package rethink
+    import "github.com/materials-commons/gohandy/rethink"
+
+
+
+TYPES
+
+type DB struct {
+    Session *r.Session
+}
+    DB holds the connection to the database.
+
+
+func NewDB(session *r.Session) *DB
+    NewDB creates a new database.
+
+
+func (db *DB) Get(table, id string) (map[string]interface{}, error)
+    Get retrieves a single item from the database and returns it as a map.
+
+func (db *DB) GetAll(query r.RqlTerm) ([]map[string]interface{}, error)
+    GetAll retrieves multiple items from the database and returns them as a
+    list of maps.
+
+
+

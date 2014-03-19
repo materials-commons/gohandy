@@ -1,0 +1,32 @@
+PACKAGE DOCUMENTATION
+
+package marshaling
+    import "github.com/materials-commons/gohandy/marshaling"
+
+
+
+TYPES
+
+type MarshalUnmarshaler interface {
+    Marshaler
+    Unmarshaler
+}
+    MarshalUnmarshaler defines the marshal/unmarshal interface.
+
+
+
+type Marshaler interface {
+    Marshal(interface{}) error
+}
+    Marshaler defines the interface for marshaling.
+
+
+
+type Unmarshaler interface {
+    Unmarshal(interface{}) error
+}
+    Unmarshaler defines the interface for unmarshaling.
+
+
+
+

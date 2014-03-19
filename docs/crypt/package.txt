@@ -1,0 +1,13 @@
+PACKAGE DOCUMENTATION
+
+package crypt
+    import "github.com/materials-commons/gohandy/crypt"
+
+
+
+FUNCTIONS
+
+func Crypt(key, salt string) string
+    Crypt wraps C library crypt_r function
+
+

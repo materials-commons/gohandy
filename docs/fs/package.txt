@@ -1,0 +1,44 @@
+PACKAGE DOCUMENTATION
+
+package fs
+    import "github.com/materials-commons/gohandy/fs"
+
+    Package fs implements a recursive file system watcher. This code is
+    based on code from
+    https://github.com/gophertown/looper/blob/master/watch.go.
+
+
+TYPES
+
+type Event struct {
+    *fsnotify.FileEvent
+}
+    Event is a structure that wraps the fsnotify.FileEvent. The reason we
+    don't expose fsnotify.FileEvent directly is to allow for future
+    expansion of state information in the Event struct.
+
+
+
+type RecursiveWatcher struct {
+    *fsnotify.Watcher            // File system watcher
+    Events            chan Event // The channel to send events on
+    ErrorEvents       chan error
+}
+    RecursiveWatcher represents the file system watcher and communication
+    channels.
+
+
+func NewRecursiveWatcher(path string) (*RecursiveWatcher, error)
+    NewRecursiveWatcher creates a new file system watcher for path. It walks
+    the directory tree at path adding each directory to the watcher. When
+    the user creates a new directory it is also added to the list of
+    directories to watch.
+
+
+func (watcher *RecursiveWatcher) Start()
+    Start starts monitoring for file system events and sends the events on
+    the Events channel. It also handles directory create events by adding
+    the newly created directory to the list of directories to monitor.
+
+
+

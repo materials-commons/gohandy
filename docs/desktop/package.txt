@@ -1,0 +1,18 @@
+PACKAGE DOCUMENTATION
+
+package desktop
+    import "github.com/materials-commons/gohandy/desktop"
+
+    Package desktop implements a method for opening a file based on the uri.
+    This code is from tebeka:
+    https://bitbucket.org/tebeka/go-wise/src/151647b160ed257f6c05e327215d13c50ebb3856/desktop.go?at=default
+
+
+FUNCTIONS
+
+func Open(uri string) error
+    Open calls the OS default program for uri e.g.
+    Open("http://www.google.com") will open the default browser on
+    www.google.com
+
+

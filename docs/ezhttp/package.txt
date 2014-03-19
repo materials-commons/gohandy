@@ -1,0 +1,45 @@
+PACKAGE DOCUMENTATION
+
+package ezhttp
+    import "github.com/materials-commons/gohandy/ezhttp"
+
+
+
+TYPES
+
+type EzClient struct {
+    *http.Client
+    // contains filtered or unexported fields
+}
+    EzClient is a container for the http requests.
+
+
+func NewClient() *EzClient
+    NewClient creates a http connection.
+
+
+func NewInsecureClient() *EzClient
+    NewInsecureClient creates a new SSL client but skips verification.
+
+
+func (c *EzClient) FileGet(url, path string) (int, error)
+    FileGet downloads a file and writes it to path.
+
+func (c *EzClient) JSON(j interface{}) *EzClient
+    JSON takes an object, marshals it and make it avaiable for POST and PUT.
+
+func (c *EzClient) JSONGet(url string, out interface{}) (int, error)
+    JSONGet performs a get request and decodes the resulting JSON.
+
+func (c *EzClient) JSONPost(url string, out interface{}) (int, error)
+    JSONPost performs a POST with JSON.
+
+func (c *EzClient) JSONStr(j string) *EzClient
+    JSONStr takes a string formatted as JSON and makes it available for POST
+    and PUT.
+
+func (c *EzClient) PostFile(url, filepath, formName string, params map[string]string) (int, error)
+    PostFile uploads a file.
+
+
+
