@@ -7,7 +7,7 @@ import (
 
 var _ = fmt.Println
 
-func TestPopulate(t *testing.T) {
+func TestLoad(t *testing.T) {
 	d, err := Load("/tmp/testdir")
 	if err != nil {
 		t.Fatalf("Failed to create directory for /tmp/testdir: %s", err)
@@ -18,11 +18,11 @@ func TestPopulate(t *testing.T) {
 	for _, dir := range d.SubDirectories {
 		fmt.Printf("Subdir = %#v\n\n", dir)
 		for _, d2 := range dir.SubDirectories {
-			fmt.Printf("  Subdir for %s: %#v\n", dir.Path, d2)
+			fmt.Printf("  Subdir for %s: %#v\n", dir.Info.Path, d2)
 		}
 		fmt.Println("")
 		for _, f2 := range dir.Files {
-			fmt.Printf("  File for %s: %#v\n", dir.Path, f2)
+			fmt.Printf("  File for %s: %#v\n", dir.Info.Path, f2)
 		}
 	}
 

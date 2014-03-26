@@ -1,79 +1,88 @@
 package dir
 
+type diffState struct {
+	dir1Files []*FileInfo
+	dir2Files []*FileInfo
+	patches   []*Patch
+}
+
 // Diff compares two versions of a directory over time. The first directory
 // is the original or older version. The second directory is the new version.
 func Diff(originalVersion *Directory, newerVersion *Directory) []*Patch {
-	originalFiles := originalVersion.Flatten()
-	newFiles := newerVersion.Flatten()
-	originalFilesLen, newFilesLen := len(originalFiles), len(newFiles)
-	originalFilesIndex, newFilesIndex := 0, 0
-	patches := []*Patch{}
+	dir1Files := originalVersion.Flatten()
+	dir2Files := newerVersion.Flatten()
+	state := &diffState{
+		dir1Files: dir1Files,
+		dir2Files: dir2Files,
+		patches:   []*Patch{},
+	}
 
-	// The checks need to become more complex. In order to determine if we should
-	// add or delete a file, we need to look at a couple of things:
-	// 1. Who has the latest set of updates? We assume here that newer wins.
-	// 2. What are the events if we are monitoring events. Because the events can
-	//    tell us what really happened.
-	// 3.
+	state.computePatches()
+	return state.patches
+}
+
+func (s *diffState) computePatches() {
+	dir1Len := len(s.dir1Files)
+	dir2Len := len(s.dir2Files)
+	dir1Index, dir2Index := 0, 0
 
 DIR_COMPARE_LOOP:
 	for {
 		switch {
-		case originalFilesIndex >= originalFilesLen && newFilesIndex >= newFilesLen:
+		case dir1Index >= dir1Len && dir2Index >= dir2Len:
 			break DIR_COMPARE_LOOP
 
-		case originalFilesIndex >= originalFilesLen:
-			// We are at the end of the list for originalFiles any files in newFiles are
-			// not in originalFiles. We treat as a creation, and add the entries from newFiles
-			// to originalFiles
+		case dir1Index >= dir1Len:
+			// We are at the end of the list for dir1Files any files in dir2Files are
+			// not in dir1Files. We treat as a creation, and add the entries from dir2Files
+			// to dir1Files
 			patch := &Patch{
-				File:    newFiles[newFilesIndex],
+				File:    s.dir2Files[dir2Index],
 				Type:    PatchCreate,
 				ApplyTo: OriginalDirectory,
 			}
-			patches = append(patches, patch)
+			s.patches = append(s.patches, patch)
 
-		case newFilesIndex >= newFilesLen:
-			// We are at the end of the list for newFiles. Any files in originalFiles were added
-			// and are not in newFiles. We treat this as an add.
+		case dir2Index >= dir2Len:
+			// We are at the end of the list for dir2Files. Any files in dir1Files were added
+			// and are not in dir2Files. We treat this as an add.
 
-		case originalFiles[originalFilesIndex].Path > newFiles[newFilesIndex].Path:
-			// There is a file in originalFiles that is not in newFiles - add it
+		case s.dir1Files[dir1Index].Path > s.dir2Files[dir2Index].Path:
+			// There is a file in dir1Files that is not in dir2Files - add it
 
-			// Decrement originalFilesIndex because we are going to increment at the bottom
-			// of the loop. Thus this decrement means we will be comparing this same originalFile
-			// entry again against another entry in newFiles. We will keep doing this until
-			// newFiles catches up or we run out of newFiles entries.
-			originalFilesIndex--
+			// Decrement dir1Index because we are going to increment at the bottom
+			// of the loop. Thus this decrement means we will be comparing this same dir1Files
+			// entry again against another entry in dir2Files. We will keep doing this until
+			// dir2Files catches up or we run out of dir2Files entries.
+			dir1Index--
 
-		case originalFiles[originalFilesIndex].Path < newFiles[newFilesIndex].Path:
-			// There is a file in newFiles that is not in originalFiles - delete it
-			// from newFiles.
+		case s.dir1Files[dir1Index].Path < s.dir2Files[dir2Index].Path:
+			// There is a file in dir2Files that is not in dir1Files - delete it
+			// from dir2Files.
 
-			// Decrement newFilesIndex because we are going to increment at the bottom
-			// of the loop. Thus this decrement means we will be comparing this same newFile
-			// entry again against another entry in originalFiles. We will keep doing this until
-			// originalFiles catches up or we run out of originalFiles entries.
-			newFilesIndex--
+			// Decrement dir2Index because we are going to increment at the bottom
+			// of the loop. Thus this decrement means we will be comparing this same dir2Files
+			// entry again against another entry in dir1Files. We will keep doing this until
+			// dir1Files catches up or we run out of dir1Files entries.
+			dir2Index--
 
 		default:
 			// The names would match - check stats to determine if there is a change.
 			// if original is newer than newer then we need to update the new file. Else if
 			// original is older than newer then we need to update older. Else we don't
 			// need to do anything.
-			originalMTime := originalFiles[originalFilesIndex].MTime
-			newMTime := newFiles[newFilesIndex].MTime
+			dir1MTime := s.dir1Files[dir1Index].MTime
+			dir2MTime := s.dir2Files[dir2Index].MTime
 			switch {
-			case originalMTime.After(newMTime):
+			case dir1MTime.After(dir2MTime):
 				// Update new file
-			case originalMTime.Before(newMTime):
+			case dir1MTime.Before(dir2MTime):
 				// Update original file
 			default:
 				// MTimes are the same, nothing to do.
 			}
 		}
-		originalFilesIndex++
-		newFilesIndex++
+		dir1Index++
+		dir2Index++
 	}
-	return nil
 }

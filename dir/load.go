@@ -4,44 +4,36 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 )
-
-// File is a file entry in one of the directories
-type File struct {
-	Path     string      // Fullname including path
-	Size     int64       // Size of file
-	Checksum string      // MD5 Hash - optional
-	MTime    time.Time   // Modification Time
-	Mode     os.FileMode // Permissions
-}
-
-// Directory is a container for the files and sub directories in a single directory.
-// Each sub directory will itself contain the same list.
-type Directory struct {
-	Path           string       // Full path
-	Mode           os.FileMode  // Permissions
-	MTime          time.Time    // Modification Time
-	Files          []*File      // List of files in this directory
-	SubDirectories []*Directory // List of directories in this directory
-}
 
 // walkerContext keeps contextual information around as a directory tree is walked.
 // This allows the directory walk function to add items to the correct directory
 // object.
 type walkerContext struct {
+	baseDir string
 	current *Directory
 	all     map[string]*Directory
 }
 
-// Populate walks a given directory path creating a Directory object with all files and
+// Load walks a given directory path creating a Directory object with all files and
 // sub directories filled out.
 func Load(path string) (*Directory, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
 	dir := &Directory{
-		Path: path,
+		Info: FileInfo{
+			Path:  path,
+			IsDir: true,
+			MTime: fi.ModTime(),
+			Mode:  fi.Mode(),
+		},
 	}
 	context := &walkerContext{
 		current: dir,
+		baseDir: path,
 		all:     make(map[string]*Directory),
 	}
 	context.all[path] = dir
@@ -60,7 +52,7 @@ func (c *walkerContext) directoryWalker(path string, info os.FileInfo, err error
 	}
 
 	dirpath := filepath.Dir(path)
-	if path != c.current.Path && dirpath != c.current.Path {
+	if path != c.current.Info.Path && dirpath != c.current.Info.Path {
 		// We have descended into a new directory, so set current to the
 		// new entry.
 		dir, ok := c.all[dirpath]
@@ -72,7 +64,9 @@ func (c *walkerContext) directoryWalker(path string, info os.FileInfo, err error
 
 	switch {
 	case info.IsDir():
-		c.addSubdir(path, info)
+		if c.baseDir != path {
+			c.addSubdir(path, info)
+		}
 	default:
 		c.addFile(path, info)
 	}
@@ -89,22 +83,25 @@ func (c *walkerContext) addSubdir(path string, info os.FileInfo) {
 
 // addFile adds a new file to the current directory
 func (c *walkerContext) addFile(path string, info os.FileInfo) {
-	f := newFile(path, info)
+	f := newFileInfo(path, info)
 	c.current.Files = append(c.current.Files, f)
 }
 
 // newDirectory creates a new Directory entry.
 func newDirectory(path string, info os.FileInfo) *Directory {
 	return &Directory{
-		Path:  path,
-		Mode:  info.Mode(),
-		MTime: info.ModTime(),
+		Info: FileInfo{
+			Path:  path,
+			Mode:  info.Mode(),
+			MTime: info.ModTime(),
+			IsDir: true,
+		},
 	}
 }
 
 // newFile creates a new File entry.
-func newFile(path string, info os.FileInfo) *File {
-	return &File{
+func newFileInfo(path string, info os.FileInfo) *FileInfo {
+	return &FileInfo{
 		Path:  path,
 		Mode:  info.Mode(),
 		MTime: info.ModTime(),
