@@ -24,19 +24,19 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(t)
 }
 
-func TestJsonGet(t *testing.T) {
+func TestJSONGet(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handlerFunc))
 	defer ts.Close()
 
 	c := NewClient()
 	var data TestData
-	status, err := c.JsonGet(ts.URL, &data)
+	status, err := c.JSONGet(ts.URL, &data)
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 
 	if status != 200 {
-		t.Fatalf("JsonGet status should be 200, got %d\n", status)
+		t.Fatalf("JSONGet status should be 200, got %d\n", status)
 	}
 
 	if data.Field1 != "hello1" || data.Field2 != "hello2" {
@@ -45,7 +45,7 @@ func TestJsonGet(t *testing.T) {
 	}
 }
 
-func TestJsonPost(t *testing.T) {
+func TestJSONPost(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
@@ -72,9 +72,9 @@ func TestJsonPost(t *testing.T) {
 	var td2 TestData
 
 	c := NewClient()
-	status, err := c.Json(&td).JsonPost(ts.URL, &td2)
+	status, err := c.JSON(&td).JSONPost(ts.URL, &td2)
 	if err != nil {
-		t.Fatalf("JsonPost returned unexpected error %s\n", err.Error())
+		t.Fatalf("JSONPost returned unexpected error %s\n", err.Error())
 	}
 
 	if status != 200 {
@@ -86,9 +86,9 @@ func TestJsonPost(t *testing.T) {
 			td2.Field1, td2.Field2)
 	}
 
-	status, err = c.JsonStr(`{"field1": "hello1", "field2": "hello2"}`).JsonPost(ts.URL, &td2)
+	status, err = c.JSONStr(`{"field1": "hello1", "field2": "hello2"}`).JSONPost(ts.URL, &td2)
 	if err != nil {
-		t.Fatalf("JsonPost returned unexpected error %s\n", err.Error())
+		t.Fatalf("JSONPost returned unexpected error %s\n", err.Error())
 	}
 
 	if status != 200 {
