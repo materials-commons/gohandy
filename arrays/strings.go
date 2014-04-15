@@ -3,7 +3,8 @@ package arrays
 // Strings allows us to limit our filter to just arrays of strings
 type strings struct{}
 
-// Strings allows easy access to the functions that operate on a list of strings
+// Strings allows easy access to the functions that operate on a list of strings.
+// You can use it to access these methods, for example: arrays.Strings.Filter(...).
 var Strings strings
 
 // Filter filters an array of strings.
@@ -30,13 +31,3 @@ func (s strings) Remove(in []string, remove ...string) []string {
 		return !found
 	})
 }
-
-
-
-
-
-
-
-
-
-
