@@ -17,4 +17,5 @@ func TestExFileInfo(t *testing.T) {
 	fmt.Println("ctime", fi.CTime())
 	fmt.Println("atime", fi.ATime())
 	fmt.Println("fid", fi.FID())
+	fmt.Println("path", fi.Path())
 }

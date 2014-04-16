@@ -2,6 +2,7 @@ package file
 
 import (
 	"os"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -46,9 +47,10 @@ func newExFileInfo(fi os.FileInfo, path string) *linuxExFileInfo {
 	fid := FID{
 		IDLow: fi.Sys().(*syscall.Stat_t).Ino,
 	}
+	absolute, _ := filepath.Abs(path)
 	return &linuxExFileInfo{
 		FileInfo: fi,
 		fid:      fid,
-		path:     path,
+		path:     filepath.Clean(absolute),
 	}
 }

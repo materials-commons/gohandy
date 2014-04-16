@@ -2,6 +2,7 @@ package file
 
 import (
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -41,10 +42,12 @@ func newExFileInfo(fi os.FileInfo, path string) *winExFileInfo {
 	if err != nil {
 		// do something
 	}
+
+	absolute, _ := filepath.Abs(path)
 	return &winExFileInfo{
 		FileInfo: fi,
 		fid:      fid,
-		path:     path,
+		path:     filepath.Clean(absolute),
 	}
 }
 
