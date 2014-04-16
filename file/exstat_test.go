@@ -16,5 +16,5 @@ func TestExFileInfo(t *testing.T) {
 	// Cheap test - just look at the values
 	fmt.Println("ctime", fi.CTime())
 	fmt.Println("atime", fi.ATime())
-	fmt.Println("inode", fi.INode())
+	fmt.Println("fid", fi.FID())
 }

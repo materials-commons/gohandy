@@ -11,6 +11,8 @@ import (
 // through the Sys() interface.
 type linuxExFileInfo struct {
 	os.FileInfo
+	fid  FID
+	path string
 }
 
 // timespecToTime converts a unix timespec into a time.Time. This was
@@ -29,14 +31,24 @@ func (fi *linuxExFileInfo) ATime() time.Time {
 	return timespecToTime(fi.Sys().(*syscall.Stat_t).Atim)
 }
 
-// INode returns the files inode.
-func (fi *linuxExFileInfo) INode() uint64 {
-	return fi.Sys().(*syscall.Stat_t).Ino
+// FID returns the file id based on the inode.
+func (fi *linuxExFileInfo) FID() FID {
+	return fi.fid
+}
+
+// Path returns the full path for the file.
+func (fi *linuxExFileInfo) Path() string {
+	return fi.path
 }
 
 // newExFileInfo creates a new winExFileInfo from a os.FileInfo.
-func newExFileInfo(fi os.FileInfo) *linuxExFileInfo {
+func newExFileInfo(fi os.FileInfo, path string) *linuxExFileInfo {
+	fid := FID{
+		IDLow: fi.Sys().(*syscall.Stat_t).Ino,
+	}
 	return &linuxExFileInfo{
 		FileInfo: fi,
+		fid:      fid,
+		path:     path,
 	}
 }
