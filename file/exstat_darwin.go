@@ -51,6 +51,6 @@ func newExFileInfo(fi os.FileInfo, path string) *darwinExFileInfo {
 	return &darwinExFileInfo{
 		FileInfo: fi,
 		fid:      fid,
-		path:     filepath.Clean(path),
+		path:     filepath.Clean(absolute),
 	}
 }
