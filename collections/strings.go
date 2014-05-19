@@ -1,4 +1,4 @@
-package arrays
+package collections
 
 // Strings allows us to limit our filter to just arrays of strings
 type strings struct{}
