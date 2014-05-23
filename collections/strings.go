@@ -31,3 +31,15 @@ func (s strings) Remove(in []string, remove ...string) []string {
 		return !found
 	})
 }
+
+// Find returns the first matching entry index. It returns -1
+// if no match was found.
+func (s strings) Find(in []string, what string) int {
+	for i, entry := range in {
+		if entry == what {
+			return i
+		}
+	}
+
+	return -1
+}
