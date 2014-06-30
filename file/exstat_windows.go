@@ -29,12 +29,12 @@ func (fi *winExFileInfo) ATime() time.Time {
 // FID returns the windows version of a file id. The FID for Windows
 // is the VolumeSerialNumber (IDHigh) and the FileIndexHigh/Low (IDLow)
 func (fi *winExFileInfo) FID() FID {
-	return fid
+	return fi.fid
 }
 
 // Path returns the full path for the file.
 func (fi *winExFileInfo) Path() string {
-	return path
+	return fi.path
 }
 
 // newExFileInfo creates a new winExFileInfo from a os.FileInfo.
@@ -74,6 +74,6 @@ func createFID(path string) (FID, error) {
 		return fid, err
 	}
 	fid.IDHigh = uint64(handleInfo.VolumeSerialNumber)
-	fid.IDLow = int64(handleInfo.FileIndexHigh)<<32 + int64(handleInfo.FileIndexLow)
+	fid.IDLow = uint64(handleInfo.FileIndexHigh)<<32 + uint64(handleInfo.FileIndexLow)
 	return fid, nil
 }
