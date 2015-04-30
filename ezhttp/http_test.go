@@ -1,7 +1,10 @@
 package ezhttp
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -112,4 +115,37 @@ func TestFileGet(t *testing.T) {
 		t.Fatalf("Unable to get file %s\n", path)
 	}
 	os.Remove(path)
+}
+
+func TestPostFileBytes(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(uploadFileHandler))
+	defer ts.Close()
+	c := NewClient()
+	s := "hello world"
+	status, err := c.PostFileBytes(ts.URL, "/tmp/file.txt", "chunkData", []byte(s), nil)
+	if err != nil {
+		t.Fatalf("PostFileBytes errored with %s", err)
+	}
+
+	if status != 200 {
+		t.Fatalf("PostFileBytes failed %d", status)
+	}
+}
+
+func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(1024 * 1024)
+	file, _, err := r.FormFile("chunkData")
+	if err != nil {
+		fmt.Println("Err FormFile =", err)
+		w.WriteHeader(500)
+		return
+	}
+	defer file.Close()
+	var b bytes.Buffer
+	io.Copy(&b, file)
+	if b.String() != "hello world" {
+		w.WriteHeader(500)
+	} else {
+		w.WriteHeader(200)
+	}
 }

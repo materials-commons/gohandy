@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -20,8 +19,8 @@ type EzClient struct {
 	body io.Reader
 }
 
-// NewInsecureClient creates a new SSL client but skips verification.
-func NewInsecureClient() *EzClient {
+// NewSSLClient creates a new SSL client but skips verification.
+func NewSSLClient() *EzClient {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -112,19 +111,8 @@ func decodeJSONResponse(resp *http.Response, out interface{}) (int, error) {
 	return resp.StatusCode, nil
 }
 
-// PostFile uploads a file.
+// PostFile posts a whole file
 func (c *EzClient) PostFile(url, filepath, formName string, params map[string]string) (int, error) {
-	// Setup body
-	body := bytes.NewBufferString("")
-	writer := multipart.NewWriter(body)
-	defer writer.Close()
-
-	// Create file form
-	part, err := writer.CreateFormFile(formName, filepath)
-	if err != nil {
-		return 0, err
-	}
-
 	// Read file into form
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -133,25 +121,37 @@ func (c *EzClient) PostFile(url, filepath, formName string, params map[string]st
 	defer file.Close()
 
 	fileContents, err := ioutil.ReadAll(file)
-	part.Write(fileContents)
+	if err != nil {
+		return 0, err
+	}
+	return c.PostFileBytes(url, filepath, formName, fileContents, params)
+}
 
-	// Add boundary
-	boundary := writer.Boundary()
-	closeStr := fmt.Sprintf("\r\n--%s--\r\n", boundary)
+// PostFileBytes posts a range of bytes
+func (c *EzClient) PostFileBytes(url, filepath, formName string, contents []byte, params map[string]string) (int, error) {
+	// Setup body
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+
+	// Create file form
+	part, err := writer.CreateFormFile(formName, filepath)
+	if err != nil {
+		return 0, err
+	}
+
+	part.Write(contents)
 
 	// Add additional params
 	if params != nil {
 		for key, value := range params {
-			writer.WriteField(key, value)
+			fw, _ := writer.CreateFormField(key)
+			fw.Write([]byte(value))
 		}
 	}
+	writer.Close()
 
-	// Create the request and set headers
-	closeBuf := bytes.NewBufferString(closeStr)
-	reader := io.MultiReader(body, file, closeBuf)
-	req, err := http.NewRequest("POST", url, reader)
-	req.Header.Add("Content-Type", "multipart/form-data; boundary="+boundary)
-	req.ContentLength = int64(body.Len()) + int64(closeBuf.Len())
+	req, err := http.NewRequest("POST", url, &body)
+	req.Header.Add("Content-Type", writer.FormDataContentType())
 	req.Close = true
 
 	// Post the file
