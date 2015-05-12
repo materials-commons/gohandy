@@ -29,26 +29,22 @@ func ExStat(path string) (fileInfo ExFileInfo, err error) {
 // stdExFileInfo is a version of the ExFileInfo where the extended
 // attributes are given by the user.
 type stdExFileInfo struct {
-	os.FileInfo
 	path  string
 	mtime time.Time
 	ctime time.Time
 	atime time.Time
 	fid   FID
+	size  int64
 }
 
-func From(path string, ctime, atime, mtime time.Time, fid FID) (*stdExFileInfo, error) {
-	fi, err := os.Stat(path)
-	if err != nil {
-		return nil, err
-	}
-
+func From(size int64, ctime, atime, mtime time.Time, fid FID) (*stdExFileInfo, error) {
 	finfo := &stdExFileInfo{
-		FileInfo: fi,
-		path:     path,
-		ctime:    ctime,
-		atime:    atime,
-		fid:      fid,
+		path:  "",
+		ctime: ctime,
+		atime: atime,
+		mtime: mtime,
+		fid:   fid,
+		size:  size,
 	}
 
 	return finfo, nil
@@ -72,4 +68,8 @@ func (fi *stdExFileInfo) ATime() time.Time {
 
 func (fi *stdExFileInfo) Path() string {
 	return fi.path
+}
+
+func (fi *stdExFileInfo) Size() int64 {
+	return fi.size
 }
