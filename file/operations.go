@@ -9,6 +9,7 @@ type Operations interface {
 	RemoveAll(path string) error
 	Mkdir(path string, perm os.FileMode) error
 	MkdirAll(path string, perm os.FileMode) error
+	Create(path string) (*os.File, error)
 }
 
 // osOperations implements the os package operations
@@ -36,4 +37,9 @@ func (_ osOperations) Mkdir(path string, perm os.FileMode) error {
 // MkdirAll is a wrapper around os.MkdirAll
 func (_ osOperations) MkdirAll(path string, perm os.FileMode) error {
 	return os.MkdirAll(path, perm)
+}
+
+// Create is a wrapper around os.Create
+func (_ osOperations) Create(path string) (os.File, error) {
+	return os.Create(path)
 }
