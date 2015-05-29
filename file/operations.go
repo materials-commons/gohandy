@@ -40,6 +40,6 @@ func (_ osOperations) MkdirAll(path string, perm os.FileMode) error {
 }
 
 // Create is a wrapper around os.Create
-func (_ osOperations) Create(path string) (os.File, error) {
+func (_ osOperations) Create(path string) (*os.File, error) {
 	return os.Create(path)
 }
