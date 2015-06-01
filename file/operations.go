@@ -10,6 +10,7 @@ type Operations interface {
 	Mkdir(path string, perm os.FileMode) error
 	MkdirAll(path string, perm os.FileMode) error
 	Create(path string) (*os.File, error)
+	Open(name string) (file *os.File, err error)
 }
 
 // osOperations implements the os package operations
@@ -42,6 +43,11 @@ func (_ osOperations) MkdirAll(path string, perm os.FileMode) error {
 // Create is a wrapper around os.Create
 func (_ osOperations) Create(path string) (*os.File, error) {
 	return os.Create(path)
+}
+
+// Open is a wrapper around os.Open
+func (_ osOperations) Open(path string) (*os.File, error) {
+	return os.Open(path)
 }
 
 type MockOperations struct {
@@ -77,4 +83,13 @@ func (m *MockOperations) Create(path string) (*os.File, error) {
 		return nil, m.Err
 	}
 	return os.Create(os.DevNull)
+}
+
+// Open returns nil, Err from MockOps if MockOps err is not
+// nil. Otherwise it returns os.Open(os.DevNull).
+func (m *MockOperations) Open(path string) (*os.File, error) {
+	if m.Err != nil {
+		return nil, m.Err
+	}
+	return os.Open(os.DevNull)
 }
