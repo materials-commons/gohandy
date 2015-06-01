@@ -43,3 +43,38 @@ func (_ osOperations) MkdirAll(path string, perm os.FileMode) error {
 func (_ osOperations) Create(path string) (*os.File, error) {
 	return os.Create(path)
 }
+
+type MockOperations struct {
+	Err error
+}
+
+var MockOps *MockOperations = &MockOperations{}
+
+// Remove returns Err from MockOps. It does nothing.
+func (m *MockOperations) Remove(path string) error {
+	return m.Err
+}
+
+// RemoveAll returns Err from MockOps. It does nothing.
+func (m *MockOperations) RemoveAll(path string) error {
+	return m.Err
+}
+
+// Mkdir returns Err from MockOps. It does nothing.
+func (m *MockOperations) Mkdir(path string, perm os.FileMode) error {
+	return m.Err
+}
+
+// MkdirAll returns Err from MockOps. It does nothing.
+func (m *MockOperations) MkdirAll(path string, perm os.FileMode) error {
+	return m.Err
+}
+
+// Create returns nil, Err from MockOps if MockOps Err is
+// not nil. Otherwise it returns os.Create(os.DevNull).
+func (m *MockOperations) Create(path string) (*os.File, error) {
+	if m.Err != nil {
+		return nil, m.Err
+	}
+	return os.Create(os.DevNull)
+}
