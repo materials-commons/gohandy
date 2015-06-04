@@ -11,6 +11,7 @@ type Operations interface {
 	MkdirAll(path string, perm os.FileMode) error
 	Create(path string) (*os.File, error)
 	Open(name string) (file *os.File, err error)
+	Rename(oldpath, newpath string) error
 }
 
 // osOperations implements the os package operations
@@ -48,6 +49,11 @@ func (_ osOperations) Create(path string) (*os.File, error) {
 // Open is a wrapper around os.Open
 func (_ osOperations) Open(path string) (*os.File, error) {
 	return os.Open(path)
+}
+
+// Rename is a wrapper around os.Rename
+func (_ osOperations) Rename(oldpath, newpath string) error {
+	return os.Rename(oldpath, newpath)
 }
 
 type MockOperations struct {
@@ -92,4 +98,9 @@ func (m MockOperations) Open(path string) (*os.File, error) {
 		return nil, m.Err
 	}
 	return os.Open(os.DevNull)
+}
+
+// Rename returns Err from MockOps. It does nothing.
+func (m MockOperations) Rename(oldpath, newpath string) error {
+	return m.Err
 }
