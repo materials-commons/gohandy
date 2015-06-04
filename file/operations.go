@@ -76,8 +76,10 @@ type MockOperations struct {
 	currentMethod string
 }
 
-var MockOps *MockOperations = &MockOperations{
-	method: make(map[string]*MockFileOpEntry),
+func MockOps() *MockOperations {
+	return &MockOperations{
+		method: make(map[string]*MockFileOpEntry),
+	}
 }
 
 func (m *MockOperations) lookup(method string) *MockFileOpEntry {
