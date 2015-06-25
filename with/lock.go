@@ -60,3 +60,13 @@ func (lock *RWLock) WithWriteLock(fn func()) {
 	lock.mutex.Lock()
 	lock.fn(fn)
 }
+
+// Use uses the passed in fn, rather than the fn that
+// that the RWLock was originally set up with.
+func (lock *RWLock) Use(fn func()) *RWLock {
+	rwLockToUse := &RWLock{
+		mutex: lock.mutex,
+		fn:    fn,
+	}
+	return rwLockToUse
+}
