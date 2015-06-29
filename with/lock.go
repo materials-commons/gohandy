@@ -16,11 +16,13 @@ func WriteLock(mutex *sync.RWMutex, fn func()) {
 	fn()
 }
 
+type LockerCallFunc func(what interface{})
+
 // An RWLocker is an interface that acquires
 // a lock before calling the given func.
 type RWLocker interface {
-	WithReadLock(fn func())
-	WithWriteLock(fn func())
+	WithReadLock(parm interface{}, fn LockerCallFunc)
+	WithWriteLock(parm interface{}, fn LockerCallFunc)
 }
 
 // RWLock implements the RWLocker interface. It takes a function
@@ -29,14 +31,14 @@ type RWLocker interface {
 // the function passed to WithReadLock or WithWriteLock.
 type RWLock struct {
 	mutex *sync.RWMutex
-	fn    func(fn func())
+	fn    func(parm interface{}, fn LockerCallFunc)
 }
 
-func NewRWLock(fn func()) *RWLock {
+func NewRWLock(fn LockerCallFunc) *RWLock {
 	fnToCall := fn
 	if fnToCall == nil {
-		fnToCall = func(fun func()) {
-			fun()
+		fnToCall = func(parm interface{}, fun LockerCallFunc) {
+			fun(parm)
 		}
 	}
 	return &RWLock{
@@ -47,23 +49,23 @@ func NewRWLock(fn func()) *RWLock {
 
 // WithReadLock acquires a read lock and then calls
 // the RWLock function passing it the fn.
-func (lock *RWLock) WithReadLock(fn func()) {
+func (lock *RWLock) WithReadLock(parm interface{}, fn LockerCallFunc) {
 	defer lock.mutex.RUnlock()
 	lock.mutex.RLock()
-	lock.fn(fn)
+	lock.fn(parm, fn)
 }
 
 // WithWriteLock acquires a write lock and then calls
 // the RWLock function passing it the fn.
-func (lock *RWLock) WithWriteLock(fn func()) {
+func (lock *RWLock) WithWriteLock(parm interface{}, fn LockerCallFunc) {
 	defer lock.mutex.Unlock()
 	lock.mutex.Lock()
-	lock.fn(fn)
+	lock.fn(parm, fn)
 }
 
 // Use uses the passed in fn, rather than the fn that
 // that the RWLock was originally set up with.
-func (lock *RWLock) Use(fn func()) *RWLock {
+func (lock *RWLock) Use(fn LockerCallFunc) *RWLock {
 	rwLockToUse := &RWLock{
 		mutex: lock.mutex,
 		fn:    fn,
