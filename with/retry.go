@@ -22,6 +22,9 @@ const defaultMaxWaitBeforeRetry = 5000
 // number.
 const RetryForever = -1
 
+// RetryNever never retries a request.
+const RetryNever = 0
+
 type Retry struct {
 	MinWait    int
 	MaxWait    int
