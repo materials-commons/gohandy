@@ -25,21 +25,21 @@ const RetryForever = -1
 // RetryNever never retries a request.
 const RetryNever = 0
 
-type Retry struct {
+type Retrier struct {
 	MinWait    int
 	MaxWait    int
 	RetryCount int
 }
 
-func NewRetry() Retry {
-	return Retry{
+func NewRetrier() Retrier {
+	return Retrier{
 		MinWait:    defaultMinWaitBeforeRetry,
 		MaxWait:    defaultMaxWaitBeforeRetry,
 		RetryCount: RetryForever,
 	}
 }
 
-func (r Retry) WithRetry(fn func() bool) error {
+func (r Retrier) WithRetry(fn func() bool) error {
 	retryCounter := 0
 	for {
 		if fn() {
@@ -56,7 +56,7 @@ func (r Retry) WithRetry(fn func() bool) error {
 	}
 }
 
-func (r Retry) sleepRandom() {
+func (r Retrier) sleepRandom() {
 	// sleep a random amount between minWait and maxWait
 	rand.Seed(time.Now().Unix())
 	randomSleepTime := rand.Intn(r.MaxWait) + r.MinWait
