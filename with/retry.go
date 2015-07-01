@@ -43,10 +43,10 @@ func NewRetrier() Retrier {
 func (r Retrier) WithRetry(fn func() error) error {
 	retryCounter := 0
 	for {
-		switch err := fn(); err {
-		case nil:
+		switch err := fn(); {
+		case err == nil:
 			return nil
-		case ErrRetry:
+		case err != ErrRetry:
 			return err
 		default:
 			if r.RetryCount != RetryForever {
